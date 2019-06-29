@@ -144,7 +144,7 @@ export function diff(parentDom, newVNode, oldVNode, context, isSvg, excessDomChi
 			newVNode._dom = diffElementNodes(oldVNode._dom, newVNode, oldVNode, context, isSvg, excessDomChildren, mounts);
 		}
 
-		if (tmp = options.diffed) tmp(newVNode);
+		if (tmp = options.diffed) tmp(newVNode, oldVNode);
 	}
 	catch (e) {
 		options._catchError(e, newVNode, oldVNode);
