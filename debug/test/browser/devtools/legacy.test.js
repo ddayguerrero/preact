@@ -6,6 +6,7 @@ import { setupScratch, teardown, clearOptions } from '../../../../test/_util/hel
 import { initDevTools } from '../../../src/devtools';
 import { Renderer } from '../../../src/devtools/legacy/renderer';
 import { createPortal } from '../../../../compat/src';
+import { createLegacyMockHook } from './mock-hook';
 
 /** @jsx h */
 
@@ -21,50 +22,6 @@ function serialize(events) {
 			? getDisplayName(x.internalInstance)
 			: '#text: ' + x.internalInstance.props
 	}));
-}
-
-/**
- * @returns {import('../../../src/internal').LegacyMockHook}
- */
-function createMockHook() {
-	let roots = new Set();
-
-	/** @type {Array<import('../../../src/internal').DevtoolsEvent>} */
-	let events = [];
-
-	function emit(ev, data) {
-		if (ev=='renderer-attached') return;
-		events.push(data);
-	}
-
-	function getFiberRoots() {
-		return roots;
-	}
-
-	function clear() {
-		roots.clear();
-		events.length = 0;
-	}
-
-	let helpers = {};
-
-	return {
-		on() {},
-		inject() { return 'abc'; },
-		onCommitFiberRoot() {},
-		onCommitFiberUnmount(rid, vnode) {
-			if (helpers[rid]!=null) {
-				helpers[rid].handleCommitFiberUnmount(vnode);
-			}
-		},
-		_roots: roots,
-		log: events,
-		_renderers: {},
-		helpers,
-		clear,
-		getFiberRoots,
-		emit
-	};
 }
 
 /**
@@ -152,7 +109,7 @@ describe('devtools', () => {
 		rerender = setupRerender();
 		clearOptions();
 
-		hook = createMockHook();
+		hook = createLegacyMockHook();
 
 		/** @type {import('../../../src/internal').DevtoolsWindow} */
 		(window).__REACT_DEVTOOLS_GLOBAL_HOOK__ = hook;
@@ -225,7 +182,7 @@ describe('devtools', () => {
 		});
 	});
 
-	describe.skip('getData', () => {
+	describe('getData', () => {
 		it('should convert vnode to DevtoolsData', () => {
 			class App extends Component {
 				render() {
@@ -324,7 +281,7 @@ describe('devtools', () => {
 		expect(unmountSpy, 'unmount').to.have.been.calledOnce;
 	});
 
-	it.skip('should connect only once', () => {
+	it('should connect only once', () => {
 		let rid = Object.keys(hook._renderers)[0];
 		let spy = sinon.spy(hook.helpers[rid], 'markConnected');
 		hook.helpers[rid] = {};
@@ -333,7 +290,7 @@ describe('devtools', () => {
 		expect(spy).to.be.not.called;
 	});
 
-	describe.skip('renderer', () => {
+	describe('renderer', () => {
 		let performance = window.performance;
 
 		beforeEach(() => {
@@ -446,7 +403,7 @@ describe('devtools', () => {
 			checkEventReferences(hook.log);
 
 			let prev = hook.log.slice();
-			hook.clear();
+			hook.clearEvents();
 
 			render(<div>Foo</div>, scratch);
 			checkEventReferences(prev.concat(hook.log));
@@ -596,8 +553,8 @@ describe('devtools', () => {
 
 			render(<div />, scratch);
 			expect(serialize(hook.log)).to.deep.equal([
-				{ type: 'unmount', component: 'span' },
 				{ type: 'unmount', component: '#text: Hello World' },
+				{ type: 'unmount', component: 'span' },
 				{ type: 'update', component: 'div' },
 				{ type: 'update', component: 'Fragment' },
 				{ type: 'rootCommitted', component: 'Fragment' }
