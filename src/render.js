@@ -33,6 +33,9 @@ export function render(vnode, parentDom, replaceNode) {
 		false,
 		replaceNode || EMPTY_OBJ,
 	);
+
+	// Used to track roots in devtools
+	vnode._dom = parentDom;
 	commitRoot(mounts, vnode);
 }
 
