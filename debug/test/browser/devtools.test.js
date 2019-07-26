@@ -140,7 +140,11 @@ function getRoot(element) {
 describe('devtools', () => {
 	before(function () {
 		let ua = window.navigator.userAgent;
-		if (ua.indexOf('Chrome') === -1 || ua.indexOf('Firefox') === -1) {
+		if (
+			ua.indexOf('Edge') >-1 ||
+			ua.indexOf('Chrome') === -1 ||
+			ua.indexOf('Firefox') === -1
+		) {
 			this.skip();
 		}
 	});
