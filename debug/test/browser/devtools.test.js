@@ -137,17 +137,11 @@ function getRoot(element) {
 	return element._children;
 }
 
+// Devtools are only supported in Chrome and Firefox anyway
 const supported = /Chrome|Firefox/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent);
 const desc = supported ? describe : describe.skip;
 
 desc('devtools', () => {
-	let ua = window.navigator.userAgent;
-	if (
-		ua.indexOf('Edge') > -1 ||
-		(ua.indexOf('Firefox') === -1 && ua.indexOf('Chrome') === -1)
-	) {
-		return;
-	}
 
 	/** @type {import('../../src/internal').PreactElement} */
 	let scratch;
