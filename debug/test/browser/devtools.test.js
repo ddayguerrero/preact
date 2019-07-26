@@ -137,7 +137,10 @@ function getRoot(element) {
 	return element._children;
 }
 
-describe('devtools', () => {
+const supported = /Chrome|Firefox/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent);
+const desc = supported ? describe : describe.skip;
+
+desc('devtools', () => {
 	let ua = window.navigator.userAgent;
 	if (
 		ua.indexOf('Edge') > -1 ||
